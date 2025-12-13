@@ -1,0 +1,55 @@
+{
+  "appId": "com.karachigarmentstore.pos",
+  "productName": "Karachi Garment Store POS",
+  "directories": {
+    "buildResources": "assets",
+    "output": "dist-electron"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/**/*",
+    "node_modules/**/*",
+    "package.json"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      },
+      {
+        "target": "portable",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "certificateFile": null,
+    "certificatePassword": null,
+    "signingHashAlgorithms": [
+      "sha256"
+    ],
+    "sign": null,
+    "icon": "public/logo.png"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Karachi Garment Store POS",
+    "installerIcon": "public/logo.png",
+    "uninstallerIcon": "public/logo.png",
+    "installerHeaderIcon": "public/logo.png",
+    "artifactName": "${productName} Setup ${version}.${ext}"
+  },
+  "portable": {
+    "artifactName": "${productName}-${version}-portable.${ext}"
+  },
+  "publish": {
+    "provider": "generic",
+    "url": "https://example.com/releases/"
+  }
+}
