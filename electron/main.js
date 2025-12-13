@@ -7,9 +7,7 @@ const os = require('os');
 let mainWindow;
 let barcodeServer;
 
-/**
- * Get local IP address for Android phone to connect to
- */
+// Get local network IP address
 function getLocalIP() {
   const interfaces = os.networkInterfaces();
   for (const name of Object.keys(interfaces)) {
@@ -22,14 +20,10 @@ function getLocalIP() {
   return 'localhost';
 }
 
-/**
- * Start HTTP server to receive barcode scans from Gamma Play app
- * App sends: POST to /scan with barcode data
- */
+// HTTP server for barcode scanner webhook
 function startBarcodeServer() {
   const PORT = 3001;
   barcodeServer = http.createServer((req, res) => {
-    // Enable CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Content-Length, X-Requested-With');
@@ -40,7 +34,6 @@ function startBarcodeServer() {
       return;
     }
 
-    // Handle barcode scan endpoint - receives from Gamma Play app
     if (req.url.includes('/scan') && (req.method === 'POST' || req.method === 'PUT')) {
       let body = '';
 
@@ -52,18 +45,14 @@ function startBarcodeServer() {
         try {
           let barcode = body;
 
-          // Try JSON format first
           try {
             const jsonData = JSON.parse(body);
             barcode = jsonData.barcode || jsonData.code || jsonData.result || body;
-          } catch (e) {
-            // If not JSON, use raw body
-          }
+          } catch (e) {}
 
           barcode = String(barcode).trim();
           console.log(`[Barcode] ${barcode}`);
 
-          // Send to React app
           if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('barcode-scanned', { barcode, timestamp: Date.now() });
           }
@@ -79,14 +68,12 @@ function startBarcodeServer() {
       return;
     }
 
-    // Health check
     if (req.url === '/health' && req.method === 'GET') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ status: 'ok' }));
       return;
     }
 
-    // Root endpoint
     if (req.url === '/' && req.method === 'GET') {
       const localIP = getLocalIP();
       res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -173,7 +160,7 @@ const createMenu = () => {
             app.quit();
           },
         },
-      ],
+      ],{ label: 'Exit', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }],
     },
     {
       label: 'Edit',
@@ -197,26 +184,7 @@ const createMenu = () => {
         { role: 'zoomIn' },
         { role: 'zoomOut' },
         { type: 'separator' },
-        { role: 'togglefullscreen' },
-      ],
-    },
-    {
-      label: 'Help',
-      submenu: [
-        {
-          label: 'About',
-          click: () => {
-            // Could open an about dialog here
-          },
-        },
-      ],
-    },
-  ];
-
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
-};
-
+        { role: 'togglefullscreen'
 app.whenReady().then(() => {
   createWindow();
 

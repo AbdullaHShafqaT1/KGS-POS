@@ -1,5 +1,6 @@
 import { db, User } from './database';
 
+// User authentication and management service
 export const authService = {
   async login(username: string, password: string): Promise<User | null> {
     const user = await db.users

@@ -1,5 +1,6 @@
 import { db, Product } from './database';
 
+// Product catalog and inventory management
 export const productService = {
   async getAllProducts(): Promise<Product[]> {
     return await db.products.toArray();

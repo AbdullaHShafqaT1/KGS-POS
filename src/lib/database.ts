@@ -1,6 +1,6 @@
 import Dexie, { Table } from 'dexie';
 
-// Database Interfaces
+// Database schema and interfaces
 export interface User {
   id?: number;
   username: string;
@@ -57,7 +57,7 @@ export interface Sale {
   createdAt?: Date;
 }
 
-// Dexie Database Class
+// Dexie IndexedDB Database Class
 class KarachiStoreDB extends Dexie {
   users!: Table<User>;
   categories!: Table<Category>;
@@ -78,13 +78,11 @@ class KarachiStoreDB extends Dexie {
 
 export const db = new KarachiStoreDB();
 
-// Initialize default data
+// Initialize database with default data
 export async function initializeDatabase() {
-  // Check if super admin exists
   const superAdminExists = await db.users.where('role').equals('super-admin').count();
   
   if (superAdminExists === 0) {
-    // Create Super Admin
     await db.users.add({
       username: 'SUPadmin',
       password: 'SUP!@#123',
@@ -93,7 +91,6 @@ export async function initializeDatabase() {
       updatedAt: new Date()
     });
 
-    // Create Default Admin
     await db.users.add({
       username: 'Hassan Admin',
       password: 'Hassan123',
@@ -104,11 +101,9 @@ export async function initializeDatabase() {
     });
   }
 
-  // Check if categories exist
   const categoriesCount = await db.categories.count();
   
   if (categoriesCount === 0) {
-    // Add default categories
     await db.categories.bulkAdd([
       { name: 'Shoes', nameUrdu: 'جوتے', createdAt: new Date() },
       { name: 'Dresses', nameUrdu: 'لباس', createdAt: new Date() },
@@ -119,11 +114,9 @@ export async function initializeDatabase() {
     ]);
   }
 
-  // Check if sample products exist
   const productsCount = await db.products.count();
   
   if (productsCount === 0) {
-    // Add sample products
     await db.products.bulkAdd([
       {
         name: "Men's Formal Shirt",
