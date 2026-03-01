@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, shell } = require('electron');
 const path = require('path');
 const isDev = process.env.NODE_ENV !== 'production';
 const http = require('http');
@@ -102,11 +102,11 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       enableRemoteModule: false,
     },
     icon: path.join(__dirname, '../public/logo.png'),
-    show: false, // Don't show until ready
+    show: false,
   });
 
   const startUrl = isDev
@@ -115,7 +115,6 @@ function createWindow() {
 
   mainWindow.loadURL(startUrl);
 
-  // Show window when ready
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
   });
@@ -124,13 +123,11 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
 
-  // Handle external links
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    require('electron').shell.openExternal(url);
+    shell.openExternal(url);
     return { action: 'deny' };
   });
 
-  // Send barcode server info to renderer on load
   mainWindow.webContents.once('did-finish-load', () => {
     const localIP = getLocalIP();
     mainWindow.webContents.send('barcode-server-ready', {
@@ -156,11 +153,9 @@ const createMenu = () => {
         {
           label: 'Exit',
           accelerator: 'CmdOrCtrl+Q',
-          click: () => {
-            app.quit();
-          },
+          click: () => { app.quit(); },
         },
-      ],{ label: 'Exit', accelerator: 'CmdOrCtrl+Q', click: () => app.quit() }],
+      ],
     },
     {
       label: 'Edit',
@@ -184,7 +179,15 @@ const createMenu = () => {
         { role: 'zoomIn' },
         { role: 'zoomOut' },
         { type: 'separator' },
-        { role: 'togglefullscreen'
+        { role: 'togglefullscreen' },
+      ],
+    },
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+};
+
 app.whenReady().then(() => {
   createWindow();
 
