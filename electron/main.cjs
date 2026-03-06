@@ -109,11 +109,11 @@ function createWindow() {
     show: false,
   });
 
-  const startUrl = isDev
-    ? 'http://localhost:5173'
-    : `file://${path.join(__dirname, '../dist/index.html')}`;
-
-  mainWindow.loadURL(startUrl);
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:5173');
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  }
 
   mainWindow.once('ready-to-show', () => {
     mainWindow.show();
